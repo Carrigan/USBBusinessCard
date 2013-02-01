@@ -1,0 +1,8 @@
+*.plg
+*.Brian
+*.dep
+*.bak
+*.s
+/Objects/
+/Listings/
+/Source/system_LPC13xx.c
