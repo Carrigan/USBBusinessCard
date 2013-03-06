@@ -1,10 +1,10 @@
 /**
   	@author Brian Carrigan
   	@date 7/12/2012
-	@file bc.c
+		@file bc.c
   	Email brian.c.carrigan@gmail.com
  
-	This file is part of the AT45DB LPC-Library.
+		This file is part of the AT45DB LPC-Library.
 
     The AT45DB LPC-Library is free software: you 
     can redistribute it and/or modify it under the terms of the GNU 
@@ -47,7 +47,7 @@ void initializeBoard(void)
  *	@param pLED LED to be turned on.
  *
  */
-void lightLED(LedIdentifier_t pLED);
+void lightLED(LedIdentifier_t pLED)
 {
 	LPC_GPIO1->DATA &= ~(1<<((unsigned char)pLED)); 
 }
@@ -58,7 +58,7 @@ void lightLED(LedIdentifier_t pLED);
  *	@param pLED LED to be turned off.
  *
  */
-void clearLED(LedIdentifier_t pLED);
+void clearLED(LedIdentifier_t pLED)
 {
 	LPC_GPIO1->DATA |= (1<<((unsigned char)pLED));
 }

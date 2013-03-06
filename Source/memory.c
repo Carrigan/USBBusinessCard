@@ -29,8 +29,8 @@
 #include "spi.h"
 #include "bc.h"
 
-#define USB_VENDOR_ID       0xGETYOUROWN
-#define USB_PROD_ID         0xGETYOUROWN
+#define USB_VENDOR_ID       0x1FC9
+#define USB_PROD_ID         0x8055
 #define USB_DEVICE	        0x0100
 
 USB_DEV_INFO DeviceInfo;

@@ -25,11 +25,17 @@
 #ifndef AT45DB_H
 #define AT45DB_H 
 
-#define MAIN_PAGE_READ		0x03
-#define MAIN_PAGE_BUF1WRITE	0x82
-#define MAIN_PAGE_TO_BUF1	0x53
-#define MAIN_PAGE_BUF1_COMP	0x60
-#define READ_STATE_REGISTER 0xD7
+// Option 1: 256 byte blocks, 1048576 bytes. The 512 byte formatted blocks expected
+// by Windows fit in much nicer, yielding a 44% better perfomance while sacrificing
+// only 3% of the total memory.
+#define	AT45DB_BLOCKSIZE	256			///<	Block size of the AT45DB being used
+#define	AT45DB_TOTALMEM		1048576		///<	Total memory of the AT45DB, using this block size
+
+// Option 2: 264 byte blocks, 1081344 bytes. More memory, but because the blocks don't
+// align nicely, 31 out of 32 block (512b) writes will take 3 blocks, causing a slowdown in 
+// write speed. Switch to this ONLY if space is a problem, as you get 32768k more memory.
+// #define AT45DB_BLOCKSIZE	264		///<	Block size of the AT45DB being used
+// #define AT45DB_TOTALMEM	1081344	///<	Total memory of the AT45DB, using this block size
 
 
 void AT45DB_WriteFromArray(unsigned char *array, unsigned int length, unsigned int offset);

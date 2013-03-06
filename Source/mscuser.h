@@ -20,9 +20,11 @@
 #ifndef __MSCUSER_H__
 #define __MSCUSER_H__
 
+#include "at45db.h"
+
 /* Mass Storage Memory Layout */
 // For the AT45DB081, there are 264x4096 sectors, or 1081344 bytes of memory.
-#define MSC_MemorySize  (1081344)
+#define MSC_MemorySize  (AT45DB_TOTALMEM)
 #define MSC_BlockSize   512
 #define MSC_BlockCount  (MSC_MemorySize / MSC_BlockSize)
 

@@ -26,6 +26,13 @@
 #include "at45db.h"
 
 
+#define MAIN_PAGE_READ		0x03	///<	Command ID of the Main Page Read operation
+#define MAIN_PAGE_BUF1WRITE	0x82	///<	Command ID of the Buffer 1 Write operation
+#define MAIN_PAGE_TO_BUF1	0x53	///<	Command ID of the Main Page -> Buffer 1 operation
+#define MAIN_PAGE_BUF1_COMP	0x60	///<	Command ID of the Buffer 1 Compare operation
+#define READ_STATE_REGISTER 0xD7	///<	Command ID of the Read State Register operation
+
+
 /**
  *	@brief Blocking function that waits for the AT45DB to finish it's current 
  *
@@ -51,11 +58,11 @@ static void AT45DB_WaitForBusy()
  */
 void AT45DB_ReadIntoArray(unsigned char *array, unsigned int length, unsigned int offset)
 {
-	unsigned char 	page_offset;
+	unsigned short 	page_offset;
 	unsigned short 	byte_offset;
 	
 	// If the offset is not valid:
-	if(offset > 0x108000)
+	if(offset > AT45DB_TOTALMEM)
 		return;
 
 	// Wait for the AT45 to finish it's current duties.
@@ -66,8 +73,8 @@ void AT45DB_ReadIntoArray(unsigned char *array, unsigned int length, unsigned in
 	SPI_ReadWrite(MAIN_PAGE_READ);
 	
 	// Compute the offset.
-	page_offset = offset/264;
-	byte_offset = offset%264;
+	page_offset = offset / AT45DB_BLOCKSIZE;
+	byte_offset = offset % AT45DB_BLOCKSIZE;
 
 	// Write the offset
 	SPI_ReadWrite(page_offset >> 7);
@@ -86,6 +93,7 @@ void AT45DB_ReadIntoArray(unsigned char *array, unsigned int length, unsigned in
 	SPI_CS_DISABLE();
 }
 
+
 /**
  *	@brief Reads an array of data from the AT45DB081, starting at a specific offset.
  *
@@ -97,15 +105,15 @@ void AT45DB_WriteFromArray(unsigned char *array, unsigned int length, unsigned i
 {
 	unsigned short 	page_offset;
 	unsigned short 	byte_offset;
-	unsigned char mathbyte;
+	unsigned char 	mathbyte;
 	
 	// If the offset is not valid:
-	if(offset > 0x108000)
+	if(offset > AT45DB_TOTALMEM)
 		return;
 
 	// Compute the offset
-	page_offset = offset/264;
-	byte_offset = offset%264;
+	page_offset = offset / AT45DB_BLOCKSIZE;
+	byte_offset = offset % AT45DB_BLOCKSIZE;
 
 	// For each page, do this operation
 	do
@@ -131,30 +139,14 @@ void AT45DB_WriteFromArray(unsigned char *array, unsigned int length, unsigned i
 		SPI_ReadWrite(page_offset >> 7);
 		mathbyte = ((page_offset & 0x7F)<<1) + (byte_offset >> 8);
 		SPI_ReadWrite(mathbyte);
-		SPI_ReadWrite(byte_offset);
+		SPI_ReadWrite(byte_offset & 0xFF);
 		do
 		{
 			SPI_ReadWrite(*array);
 			array++;
 			length--;
 			byte_offset++;
-		} while (byte_offset < 264 && length > 0); 		 
-		SPI_CS_DISABLE();
-
-	   	// Delay the processor 
-		array = array + 2;
-		array = array - 2;
-
-		// Wait for the page to be in RAM
-		AT45DB_WaitForBusy();
-
-		// Load the page into Flash
-		SPI_CS_ENABLE();
-		SPI_ReadWrite(0x58);
-		SPI_ReadWrite(page_offset >> 7);
-		mathbyte = (page_offset & 0x7F)<<1;
-		SPI_ReadWrite(mathbyte);
-		SPI_ReadWrite(SPI_DUMMY);
+		} while (byte_offset < AT45DB_BLOCKSIZE && length > 0); 		 
 		SPI_CS_DISABLE();
 		
 		// Is the operation complete?
